@@ -1,0 +1,8 @@
+#git rm --cached .DS_Store
+*.DS_Store
+db.sqlite3
+*.pyc
+*.csv
+*.xlsx
+archive/*
+venv/*
