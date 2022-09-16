@@ -242,7 +242,7 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
 ##################################################
 def get_data(url):
     """
-    Helper function to get data from a provided URL
+    Helper function to get data from a provided URL.
     """
     with requests.Session() as s:
         return s.get(url)
@@ -250,7 +250,8 @@ def get_data(url):
 ##################################################
 def get_ens_name(address):
     """
-    Function to lookup the ens name for an address
+    Function to lookup the ens name for an address.
+    NOTE: Will display a FutureWarning, this can be ignored.
     """
     ens_lookup = ns.name(address)
 
