@@ -97,7 +97,7 @@ def main():
         # Get the first transaction initiated by the user
         first_tx = user_details[3]
 
-        # Get the number of OUSD Transactions for user
+        # Get the number of OUSD Transfers for user
         num_ousd_logs = len(user_interaction[user])
 
         # Get the earliest block a user has an OUSD Transfer Event for
