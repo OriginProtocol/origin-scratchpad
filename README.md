@@ -6,6 +6,10 @@ other issues that go against traditional best practices.
 
 ## Setup
 
+You will need to make sure to add API keys for Etherscan and Alchemy in './modules/settings/keys.json' 
+if you are using a script that leverages './modules/eth.py'. This will likely work with the demo keys,
+but you may run into rate limit issues.
+
 ```
 python3 -m venv venv
 source ./venv/bin/activate
