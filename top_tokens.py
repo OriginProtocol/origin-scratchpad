@@ -1,6 +1,6 @@
 #! Python3
 """
-    File name: collateral.py
+    File name: top_tokens.py
     Author: Jonathan Snow
     Date created: 09/15/2022
     Python Version: 3.9.x
