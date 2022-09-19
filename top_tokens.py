@@ -50,10 +50,22 @@ def main():
             usd_proxy = chainlink_feeds[token_symbol]["USD"]
             eth_proxy = chainlink_feeds[token_symbol]["ETH"]
 
+        # Grab protocol data from JSON file
+        """
+        NOTE: If not available, run /utilities/depositable_assets.py
+        """
+        protocol_tokens = data.load_json("files/input/depositable_assets.json")
+
+        # Update variables if exists in dictionary else default value
+        on_aave = protocol_tokens[token_symbol]["on_aave"] if token_symbol in protocol_tokens else ""
+        on_compound = protocol_tokens[token_symbol]["on_compound"] if token_symbol in protocol_tokens else ""
+        on_maker = protocol_tokens[token_symbol]["on_maker"] if token_symbol in protocol_tokens else ""
+        on_yearn = protocol_tokens[token_symbol]["on_yearn"] if token_symbol in protocol_tokens else ""
+
         # Build token data list
         token_data = [
             token["name"], token["symbol"], token["platform"]["token_address"], has_chainlink, usd_proxy, eth_proxy,
-            token["quotes"][0]["marketCap"], token["quotes"][0]["volume24h"]
+            token["quotes"][0]["marketCap"], token["quotes"][0]["volume24h"], on_aave, on_compound, on_maker, on_yearn
         ]
         
         # Add to output data
@@ -66,7 +78,7 @@ def main():
     output_name = "top_tokens_" + str(int(time())) + ".csv"
     data.save(output, output_path, output_name,
         ["name", "symbol", "address", "has_chainlink_feed", "usd_proxy", "eth_proxy", "market_cap_usd",
-        "24h_volume"
+        "24h_volume", "aave", "compound", "maker", "yearn"
         ]
     )
 

@@ -52,6 +52,23 @@ def save_dataframe(data, filename, column_headers):
         print(e)
 
 #
+# Function to save a dataframe as JSON
+def save_json(data, path, file):
+    # Check if path exists, else create
+    output_dir = Path(path)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    filename = output_dir / file
+
+    try:
+        with open(str(filename), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
+        sleep(0.1)
+        print(colored("    Data saved.", 'green'))
+    except Exception as e:
+        print(colored("    An error occurred when saving data.", 'red'))
+        print(e)
+
+#
 # Function to load a CSV
 def load(filename, full):
     try:
