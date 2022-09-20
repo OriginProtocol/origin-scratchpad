@@ -164,6 +164,18 @@ def is_contract(address):
         return True
 
 ##################################################
+def is_contract_verified(address):
+    """
+    Function to check Etherscan to see if the provided
+    contract is verified and returns an ABI.
+    """
+    url = ETHERSCAN + "?module=contract&action=getabi&address=" + address + "&apikey=" + ETHERSCAN_KEY
+    data = get_data(url).json()
+    status = int(data["status"])
+    
+    return True if status == 1 else False
+
+##################################################
 # Function to take an address and return checksum
 def get_transaction_count(address, block = get_latest_block()):
     return WEB3.eth.get_transaction_count(address, block)

@@ -18,7 +18,7 @@ CUR = CON.cursor()
 ##################################################
 def get_block(number):
     """
-    Function to get block details from the DB
+    Function to get block details from the DB.
     """
     res = CUR.execute("SELECT * FROM block WHERE number = ?", (number,))
     return res.fetchone()
@@ -26,9 +26,9 @@ def get_block(number):
 ##################################################
 def add_block(number, timestamp, data):
     """
-    Function to add block details to the DB
+    Function to add block details to the DB.
     """
-    last_updated = time()
+    last_updated = int(time())
     CUR.execute(
         "INSERT INTO block (number, timestamp, data, last_updated) VALUES (?,?,?,?);", 
         (number, timestamp, data, last_updated,))
@@ -38,7 +38,7 @@ def add_block(number, timestamp, data):
 def get_user(address):
     """
     Function to return a User for a provided address
-    if they exist in the DB else return None
+    if they exist in the DB else return None.
     """
     res = CUR.execute("SELECT * FROM user WHERE address = ?", (address,))
     return res.fetchone()
@@ -47,7 +47,7 @@ def get_user(address):
 def add_user(address, ens, is_contract, first_activity=0):
     """
     Function to add a user to the database and set a
-    default first_tx value to 0 unless provided
+    default first_tx value to 0 unless provided.
     """
     last_updated = time()
     CUR.execute(
@@ -62,9 +62,30 @@ def update_user(address, ens, is_contract, first_activity):
     Function to update a user in the database. Maintaining this
     function in the event data needs to be reprocessed.
     """
-    last_updated = time()
+    last_updated = int(time())
     CUR.execute(
         "UPDATE user SET ens=?, is_contract=?, first_activity=?, last_updated=? WHERE address=?;",
         (ens, is_contract, first_activity, last_updated, address,)
+    )
+    CON.commit()
+
+##################################################
+def get_contract(address):
+    """
+    Function to return a Contract for a provided address
+    if it exists in the DB else return None.
+    """
+    res = CUR.execute("SELECT * FROM contract WHERE address = ?", (address,))
+    return res.fetchone()
+
+##################################################
+def add_contract(address, is_verified, deploy_date):
+    """
+    Function to add a contract to the database.
+    """
+    last_updated = int(time())
+    CUR.execute(
+        "INSERT INTO contract (address, is_verified, deploy_date, last_updated) VALUES (?,?,?,?);", 
+        (address, is_verified, deploy_date, last_updated,)
     )
     CON.commit()

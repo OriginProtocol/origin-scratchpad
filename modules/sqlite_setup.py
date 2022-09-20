@@ -6,10 +6,12 @@
     Python Version: 3.9.x
     File Details:
         Purpose: A series of functions to help initialize a fresh SQLite DB
-        Event table is not used at this time as fetching events in realtime
+        
+        NOTE: Event table is not used at this time as fetching events in realtime
         takes ~20s. Will need to create a unique key for each event using
         the blockHash + txHash + logIndex. This should cover any possible
-        block reorg.
+        block reorg. This setup file, and use of the local DB, will change
+        over time.
 """
 
 from termcolor import colored
@@ -21,7 +23,7 @@ CUR = CON.cursor()
 ##################################################
 def main():
     """
-    Function to set up the ousd SQLite DB.
+    Function to set up a local SQLite DB.
     """
 
     print("\nStarting SQLite setup.")
@@ -34,6 +36,9 @@ def main():
 
     # Check if user table exists else create
     create_user_table()
+
+    # Check if contract table exists else create
+    create_contract_table()
 
     print(colored("SQLite setup complete.", 'green'))
 
@@ -83,6 +88,20 @@ def create_user_table():
     """
     CUR.execute(create_user)
 
+##################################################
+def create_contract_table():
+    """
+    Function to create the contract table in the db
+    """
+    create_contract = """
+        CREATE TABLE IF NOT EXISTS contract (
+            address TEXT UNIQUE PRIMARY KEY,
+            is_verified INTEGER,
+            deploy_date INTEGER,
+            last_updated INTEGER
+        );
+    """
+    CUR.execute(create_contract)
 
 ##################################################
 # Runtime Entry Point
