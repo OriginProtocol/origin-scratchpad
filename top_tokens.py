@@ -66,9 +66,7 @@ def main():
             eth_proxy = chainlink_feeds[token_symbol]["ETH"]
 
         # Grab protocol data from JSON file
-        """
-        If not available, run /utilities/depositable_assets.py
-        """
+        # If not available, run /utilities/depositable_assets.py
         protocol_tokens = data.load_json("files/input/depositable_assets.json")
 
         # Update variables if exists in dictionary else default value
@@ -83,7 +81,6 @@ def main():
         # Check if eligible for Chainlink Data Feed
         volume_24h = token["quotes"][0]["volume24h"]
         chainlink_eligible = exchange_count >= 3 and volume_24h > 3000000
-
 
         # DEBUG code used to validate the exchange listings for a specific hardcoded token symbol
         if DEBUG:
@@ -196,13 +193,12 @@ def process_chainlink_feeds():
         if pair["base"] == "ETH":
             output[token]["ETH"] = pair["proxy"]
 
-
     return output
 
 ##################################################
 def get_data(url):
     """
-    Function to fetch data from URL and return JSON output
+    Function to fetch data from URL and return JSON output.
     """
     with requests.Session() as s:
         response = s.get(url)
@@ -233,7 +229,6 @@ def process_contract(address):
         contract_details = db.get_contract(address)
 
     return contract_details
-
 
 ##################################################
 def get_exchange_tokens():
@@ -301,7 +296,6 @@ def get_exchange_pairs(exchange):
         start += 500
     
     return output
-
 
 ##################################################
 # Runtime Entry Point
