@@ -59,6 +59,9 @@ def main():
         # Check if contract is verified on Etherscan
         etherscan_verified = True if contract_data[1] == 1 else False
 
+        # Check if audited based on data from CMC
+        is_audited = token["isAudited"]
+
         # Grab Chainlink oracle if present
         if token_symbol in chainlink_feeds:
             has_chainlink = True
@@ -91,7 +94,7 @@ def main():
 
         # Build token data list
         token_data = [
-            token["name"], token["symbol"], address, etherscan_verified, chainlink_eligible, has_chainlink,
+            token["name"], token["symbol"], address, etherscan_verified, is_audited, chainlink_eligible, has_chainlink,
             usd_proxy, eth_proxy, token["quotes"][0]["marketCap"], volume_24h, exchange_count, 
             on_aave, on_compound, on_maker, on_yearn
         ]
@@ -108,10 +111,9 @@ def main():
     output_path = "files/output"
     output_name = "top_tokens_" + str(int(time())) + ".csv"
     data.save(output, output_path, output_name,
-        ["name", "symbol", "address", "etherscan_verified", "chainlink_eligible", "has_chainlink_feed", "usd_proxy", 
-        "eth_proxy", "market_cap_usd", "24h_volume", "cex_count", "aave", "compound", "maker", "yearn"
-        ]
-    )
+        ["name", "symbol", "address", "etherscan_verified", "is_audited", "chainlink_eligible", "has_chainlink_feed", 
+        "usd_proxy", "eth_proxy", "market_cap_usd", "24h_volume", "cex_count", "aave", "compound", "maker", "yearn"
+        ])
 
 ##################################################
 def fetch_tokens(limit=1000):
@@ -148,7 +150,7 @@ def process_chainlink_feeds():
     Data Feeds and convert this into token pair data.
     """
     url = "https://cl-docs-addresses.web.app/addresses.json"
-    chainlink_all_data = get_data(url)["ethereum-addresses"]["networks"]
+    chainlink_all_data = get_data(url)["ethereum"]["networks"]
     chainlink_raw_data = []
     chainlink_output = []
     output = {}
