@@ -106,3 +106,6 @@ def string_to_json(data):
 def json_to_string(data):
     return json.dumps(data)
 
+# Function to flatten a list of lists
+def flatten(l):
+    return [item for sublist in l for item in sublist]

@@ -13,11 +13,12 @@
 
 # Imports
 from time import time, sleep
-from modules import data, eth, db
+from modules import data, eth, db, dexguru, apyvision, holders
 import requests
 import sys
 
 DEBUG = False
+BLOCK = eth.get_latest_block()
 
 ##################################################
 def main():
@@ -42,9 +43,33 @@ def main():
     # Fetch current exchange pairs
     exchange_tokens = get_exchange_tokens()
 
+    # Rework data
+    t_addresses = []
+    t_symbols = []
+    for t in eth_tokens:
+        t_address = eth.get_checksum(t["platform"]["token_address"])
+        t_addresses.append(t_address)
+        t_symbol = t["symbol"]
+        t_symbols.append(t_symbol)
+
+    # Process current liquidity data
+    liquidity_data = dexguru.scrape_async(t_addresses)
+
+    # Fetch apyvision token pair pools for provided T500 tokens
+    token_pools = apyvision.process(t_symbols)
+
+    # Get list of pool addresses
+    token_pool_addresses = data.flatten(list(token_pools.values()))
+
+    # Get holder data on pools (slow-mode)
+    pool_owners = holders.scrape_slow(token_pool_addresses, BLOCK)
+
+    # Determine token unique LP count
+    token_lp_count = get_lp_count(token_pools, pool_owners)
+
     # Iterate over token list and prepare for data dump
     for token in eth_tokens:
-        print("\rProcessing contract " + str(i) + " / " + str(len(eth_tokens)) + "          ", end="", flush=True)
+        print("\rProcessing contract " + str(i) + " / " + str(len(eth_tokens)) + (20 * " "), end="", flush=True)
 
         # Set up loop variables
         address = eth.get_checksum(token["platform"]["token_address"])
@@ -90,13 +115,21 @@ def main():
             if token_symbol == "USDT":
                 print(exchange_tokens[token_symbol]["exchanges"])
 
-        # FUTURE: Get DEX details/data
+        # Grab token liquidity
+        tld = liquidity_data[address]["data"]
+        token_liquidity = tld[0]["liquidityUSD"] if len(tld) > 0 else "N/A"
+
+        # Determine the number of pools for token
+        pool_count = 0 if token_symbol not in token_pools else len(token_pools[token_symbol])
+        
+        # Determine the number of LP providers for pools for token
+        lp_count = 0 if token_symbol not in token_lp_count else token_lp_count[token_symbol]
 
         # Build token data list
         token_data = [
             token["name"], token["symbol"], address, etherscan_verified, is_audited, chainlink_eligible, has_chainlink,
             usd_proxy, eth_proxy, token["quotes"][0]["marketCap"], volume_24h, exchange_count, 
-            on_aave, on_compound, on_maker, on_yearn
+            on_aave, on_compound, on_maker, on_yearn, token_liquidity, pool_count, lp_count
         ]
 
         # Add to output data
@@ -112,7 +145,8 @@ def main():
     output_name = "top_tokens_" + str(int(time())) + ".csv"
     data.save(output, output_path, output_name,
         ["name", "symbol", "address", "etherscan_verified", "is_audited", "chainlink_eligible", "has_chainlink_feed", 
-        "usd_proxy", "eth_proxy", "market_cap_usd", "24h_volume", "cex_count", "aave", "compound", "maker", "yearn"
+        "usd_proxy", "eth_proxy", "market_cap_usd", "24h_volume", "cex_count", "aave", "compound", "maker", "yearn",
+        "liquidity_dexguru", "pool_count", "lp_count"
         ])
 
 ##################################################
@@ -296,7 +330,31 @@ def get_exchange_pairs(exchange):
 
         # Increment start value
         start += 500
-    
+
+    return output
+
+##################################################
+def get_lp_count(token_pools, pool_owners):
+    """
+    Function to process pool ownership data and
+    return pool values for each token.
+    """
+    output = {}
+
+    # Loop through token list
+    for key, value in token_pools.items():
+        pool_addresses = value
+        # Loop through related pools for token
+        lp_count = 0
+        for pool in pool_addresses:
+            # Get number of addresses with pool tokens else 0
+            unique_owners = 0 if pool not in pool_owners else pool_owners[pool]
+            # Increase LP count for token
+            lp_count += unique_owners
+        
+        # Add token symbol to dict
+        output[key] = lp_count
+
     return output
 
 ##################################################
