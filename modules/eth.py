@@ -125,6 +125,13 @@ def get_balance(address, block = get_latest_block()):
     return WEB3.eth.get_balance(address, block)
 
 ##################################################
+# Function to get the current ETH price
+def get_eth_price():
+    url = ETHERSCAN + "?module=stats&action=ethprice&apikey=" + ETHERSCAN_KEY
+    response = get_data(url).json()
+    return response["result"]["ethusd"]
+
+##################################################
 # Function to take an address and return checksum
 def get_checksum(address):
     return WEB3.toChecksumAddress(address)
