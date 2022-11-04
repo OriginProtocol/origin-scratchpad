@@ -219,7 +219,9 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
     NOTE: This can run slowly depending on when the contract was
     deployed and the block gap may need to be adjusted depending
     on the activity within the collection. Designed for a specific
-    objective and is not efficient for all collections.
+    objective and is not efficient for all collections. Limited to
+    10k logs with > 2000 block range, unlimited logs with block range
+    that is <= 2,000.
     """
     s_time = time()
     output = []
@@ -253,7 +255,7 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
         end_block = to_block if (start_block + gap) > to_block else (start_block + gap)
 
     e_time = time()
-    print(colored("Retrieved Events in " + str(round(e_time-s_time,2)) + "s", 'green'))
+    print(colored("\nRetrieved Events in " + str(round(e_time-s_time,2)) + "s", 'green'))
     return output
 
 

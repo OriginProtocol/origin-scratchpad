@@ -35,9 +35,9 @@ def save(data, path, filename, column_headers):
         df = pd.DataFrame(data, columns=column_headers)
         df.to_csv(filename, index=False, encoding='utf-8')
         sleep(0.1)
-        print(colored("    Data saved.", 'green'))
+        print(colored("\n    Data saved.", 'green'))
     except Exception as e:
-        print(colored("    An error occurred when saving data.", 'red'))
+        print(colored("\n    An error occurred when saving data.", 'red'))
         print(e)
 
 #
@@ -46,9 +46,9 @@ def save_dataframe(data, filename, column_headers):
     try:
         data.to_csv(filename, encoding='utf-8', index=True, header=column_headers)
         sleep(0.1)
-        print(colored("    Data saved.", 'green'))
+        print(colored("\n    Data saved.", 'green'))
     except Exception as e:
-        print(colored("    An error occurred when saving data.", 'red'))
+        print(colored("\n    An error occurred when saving data.", 'red'))
         print(e)
 
 #
@@ -63,9 +63,9 @@ def save_json(data, path, file):
         with open(str(filename), 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False)
         sleep(0.1)
-        print(colored("    Data saved.", 'green'))
+        print(colored("\n    Data saved.", 'green'))
     except Exception as e:
-        print(colored("    An error occurred when saving data.", 'red'))
+        print(colored("\n    An error occurred when saving data.", 'red'))
         print(e)
 
 #
