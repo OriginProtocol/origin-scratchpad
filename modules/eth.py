@@ -30,6 +30,7 @@ ETHERSCAN = "https://api.etherscan.io/api"
 
 ALCHEMY_KEY = KEYS.ALCHEMY
 ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + ALCHEMY_KEY
+#ALCHEMY = "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_KEY
 
 # Set up Web3 Object
 WEB3 =  Web3(Web3.HTTPProvider(ALCHEMY))
@@ -37,6 +38,7 @@ ns = ENS.fromWeb3(WEB3)
 
 # Load ERC20 ABI
 ABI = config.load("modules/abi/erc20.json")
+GNOSIS = config.load("modules/abi/gnosis.json")
 
 ##################################################
 # Function to get block details
@@ -137,6 +139,13 @@ def get_checksum(address):
     return WEB3.toChecksumAddress(address)
 
 ##################################################
+# Function to get all NFT holders for a contract
+def get_nft_owners(address):
+    url = "https://eth-mainnet.alchemyapi.io/nft/v2/" + ALCHEMY_KEY + "/getOwnersForCollection"
+    url += "?contractAddress=" + address + "&withTokenBalances=false"
+    return get_data(url)
+
+##################################################
 # Function to take an address and return checksum
 def get_contract_deploy_date(address, return_block=False):
     """
@@ -159,6 +168,30 @@ def get_contract_deploy_date(address, return_block=False):
         return block
     else:
         return block_data["timestamp"]
+
+##################################################
+# Function to determine if an address is a contract
+def get_contract_abi(address):
+    url = "https://api.etherscan.io/api?module=contract&action=getabi&address=" + address + "&apikey=" + ETHERSCAN_KEY
+    response = get_data(url).json()["result"]
+    return response
+
+##################################################
+# Function to determine if an address is a Safe
+def is_gnosis(address):
+    contract = get_contract(address, GNOSIS)
+
+    # Try/Catch on contract call
+    """
+    CHECKS IF CONTRACT RETURNS A VERSION NUMBER
+    AND MAY NOT BE SUPER ACCURATE!
+    """
+    try:
+        version = contract.functions.VERSION().call()
+        print(version)
+        return True
+    except Exception as e:
+        return False
 
 ##################################################
 # Function to determine if an address is a contract
@@ -197,20 +230,59 @@ def get_first_transaction(address):
     # Generate URL and call Etherscan API
     url = ETHERSCAN + "?module=account&action=txlist&address=" + address \
         + "&startblock=0&endblock=99999999&page=1&offset=100&sort=asc&apikey=" + ETHERSCAN_KEY
-    response = get_data(url).json()
 
     # Set default timestamp value in case nothing is found
     timestamp = 0
 
-    # Iterate over transaction list returned from Etherscan
-    for each in response["result"]:
-        # Look for a transaction by user with the nonce of 0
-        if each["from"].lower() == address.lower() and each["nonce"] == "0":
-            # Store the timestamp if found, cast to int as ts is String
-            timestamp = int(each["timeStamp"])
-            break
+    # Attempt to get the first transaction from Etherscan
+    try:
+        response = get_data(url).json()
+
+        # Iterate over transaction list returned from Etherscan
+        for each in response["result"]:
+            # Look for a transaction by user with the nonce of 0
+            if each["from"].lower() == address.lower() and each["nonce"] == "0":
+                # Store the timestamp if found, cast to int as ts is String
+                timestamp = int(each["timeStamp"])
+                break
+
+    except Exception as e:
+        print(e)
 
     return timestamp
+
+##################################################
+# Function to get a list of transactions.
+# NOTE: SPECIFIC FUNCTION FOR ONE PURPOSE
+def get_transactions(address):
+    """
+    Function to try to get the first user directed transaction
+    from Etherscan data.
+    """
+
+    # Generate URL and call Etherscan API
+    print("Processing Etherscan Data: ")
+    url = ETHERSCAN + "?module=account&action=txlist&address=" + address \
+        + "&startblock=14784385&endblock=15934175&page=1&offset=10000&sort=asc&apikey=" + ETHERSCAN_KEY
+    response = get_data(url).json()
+
+    # Iterate over transaction list returned from Etherscan
+    for each in response["result"]:
+        
+        # Populate variable
+        referrer = "0000000000000000000000000000000000000000000000000000000000000000"
+
+        if each["txreceipt_status"] == "1":
+            data = each["input"]
+            method = each["methodId"]
+
+            if method == "0xc17d5959" or method == "0x505dc8d6":
+                referrer = data[10:74]
+                
+        # Check if there is a referrer
+        if referrer != "0000000000000000000000000000000000000000000000000000000000000000":
+                    print(referrer)
+
 
 ##################################################
 def get_transfer_logs(contract, from_block, to_block, gap=1000000):

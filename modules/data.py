@@ -91,6 +91,11 @@ def load_json(pathname):
     return json.loads((open(pathname, "r", encoding="utf-8")).read())
 
 #
+# Function to load and import a CSV from a URL
+def load_csv_from_url(url):
+    return pd.read_csv(url)
+
+#
 # Function to check whether a file exists on a specified path
 def check(path):
     return os.path.isfile(path)
