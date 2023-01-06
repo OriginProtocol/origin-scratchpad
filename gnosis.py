@@ -1,14 +1,12 @@
 #! Python3
 """
-    File name: ousd.py
+    File name: gnosis.py
     Author: Jonathan Snow
-    Date created: 08/27/2022
+    Date created: 01/06/2023
     Python Version: 3.9.x
     File Details:
         Purpose: A series of functions to pull information about OUSD owners
         and dump the data to CSV.
-    Notes:
-        - Look at Curve tokens in future [0x87650D7bbfC3A9F10587d7778206671719d9910D]
 
 """
 
