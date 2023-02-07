@@ -8,9 +8,7 @@
         Purpose: A series of functions to determine the top holders in a requested collection
 
         Notes:
-        - Add in real API key to ENV
         - Alchemy API returns non-checksum addresses, shouldn't be an issue, but worth noting
-        - Written for clarity, not speed. This script runs 3 operations.
 """
 
 # Imports
@@ -19,11 +17,16 @@ import requests
 from web3 import Web3
 from ens import ENS
 
-# Globals
-KEY = "demo"
-URL = "https://eth-mainnet.g.alchemy.com/nft/v2/" + KEY + "/getOwnersForCollection?contractAddress="
+import dotenv
+import os
 
-ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + KEY
+dotenv.load_dotenv()
+
+# Globals
+ALCHEMY_KEY = os.getenv("ALCHEMY_API_KEY")
+URL = "https://eth-mainnet.g.alchemy.com/nft/v2/" + ALCHEMY_KEY + "/getOwnersForCollection?contractAddress="
+
+ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + ALCHEMY_KEY
 WEB3 =  Web3(Web3.HTTPProvider(ALCHEMY))
 ns = ENS.fromWeb3(WEB3)
 

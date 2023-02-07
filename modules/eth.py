@@ -19,18 +19,17 @@ from modules import config, db, data
 from time import sleep, time
 from termcolor import colored
 import requests
+import dotenv
+import os
 
+dotenv.load_dotenv()
 DEBUG = False
 
-# Load keys from json
-KEYS = config.load("modules/settings/keys.json", True)
-
-ETHERSCAN_KEY = KEYS.ETHERSCAN
+ETHERSCAN_KEY = os.getenv("ETHERSCAN_API_KEY")
 ETHERSCAN = "https://api.etherscan.io/api"
 
-ALCHEMY_KEY = KEYS.ALCHEMY
+ALCHEMY_KEY = os.getenv("ALCHEMY_API_KEY")
 ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + ALCHEMY_KEY
-#ALCHEMY = "https://eth-mainnet.g.alchemy.com/v2/" + ALCHEMY_KEY
 
 # Set up Web3 Object
 WEB3 =  Web3(Web3.HTTPProvider(ALCHEMY))
