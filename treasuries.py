@@ -50,6 +50,9 @@ CUSDC = eth.get_contract("0x39AA39c021dfbaE8faC545936693aC917d5E7563")
 CUSDT = eth.get_contract("0xf650C3d88D12dB855b8bf7D11Be6C55A4e07dCC9")
 CDAI = eth.get_contract("0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643")
 
+MUSD = eth.get_contract("0xe2f2a5C287993345a840Db3B0845fbC70f5935a5")
+IMUSD = eth.get_contract("0x30647a72Dc82d7Fbb1123EA74716aB8A317Eac19")
+
 ##################################################
 def main():
     """
@@ -97,7 +100,10 @@ def main():
                 each["frax"],
                 each["cusdc"],
                 each["cusdt"],
-                each["cdai"]
+                each["cdai"],
+                each["musd"],
+                each["imusd"]
+
 
             ]
         )
@@ -108,8 +114,8 @@ def main():
 
     """ UPDATE FOR NEW TOKENS """
     data.save(output_list, output_path, output_name,
-        ["Name", "USDC", "aUSDC", "USDT", "aUSDT", "DAI", "aDAI", "WETH", "stETH", "ETH", "BUSD",
-        "USDP", "TUSD", "USDD", "GUSD", "USD_VALUE", "CEL", "FTT", "USTC", "FRAX", "cUSDC", "cUSDT", "cDAI"]
+        ["Name", "USDC", "aUSDC", "USDT", "aUSDT", "DAI", "aDAI", "WETH", "stETH", "ETH", "BUSD", "USDP", "TUSD",
+         "USDD", "GUSD", "USD_VALUE", "CEL", "FTT", "USTC", "FRAX", "cUSDC", "cUSDT", "cDAI", "mUSD", "imUSD"]
     )
 
 
@@ -184,6 +190,8 @@ def get_balance(addresses):
     cusdc_balance = 0
     cusdt_balance = 0
     cdai_balance = 0
+    musd_balance = 0
+    imusd_balance = 0
 
     # Process balances for known addresses for DAO
     for address in addresses:
@@ -228,6 +236,9 @@ def get_balance(addresses):
         cusdt_balance += round(eth.get_token_balance(CUSDT, address, LATEST_BLOCK) / 1e8, 2)
         cdai_balance += round(eth.get_token_balance(CDAI, address, LATEST_BLOCK) / 1e8, 2)
 
+        musd_balance += round(eth.get_token_balance(MUSD, address, LATEST_BLOCK) / 1e18, 2)
+        imusd_balance += round(eth.get_token_balance(IMUSD, address, LATEST_BLOCK) / 1e18, 2)
+
 
     # Determine the USD value of holdings listed above
     usd_value = usdc_balance + ausdc_balance + usdt_balance + ausdt_balance + dai_balance + adai_balance \
@@ -270,7 +281,9 @@ def get_balance(addresses):
         'frax': frax_balance,
         'cusdc': cusdc_balance,
         'cusdt': cusdt_balance,
-        'cdai': cdai_balance
+        'cdai': cdai_balance,
+        'musd': musd_balance,
+        'imusd': imusd_balance
 
     }
 
