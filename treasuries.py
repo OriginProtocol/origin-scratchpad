@@ -19,15 +19,9 @@ ETH_PRICE = float(eth.get_eth_price())
 #LATEST_BLOCK = eth.get_latest_block()
 LATEST_BLOCK = 18251964 # September 31, 2023 (11:59:59 PM UTC)
 
-# Contracts
-# X = eth.get_contract("")
-
-# STABLECOINS
 USDC = eth.get_contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
 USDT = eth.get_contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
 DAI  = eth.get_contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
-
-# ETH DERIVATIVES
 WETH = eth.get_contract("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 STETH = eth.get_contract("0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84")
 WSTETH = eth.get_contract("0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0")
@@ -37,6 +31,7 @@ FRXETH = eth.get_contract("0x5E8422345238F34275888049021821E8E08CAa1f")
 SFRXETH = eth.get_contract("0xac3E018457B222d93114458476f3E3416Abbe38F")
 SETH2 = eth.get_contract("0xFe2e637202056d30016725477c5da089Ab0A043A")
 RETH2 = eth.get_contract("0x20BC832ca081b91433ff6c17f85701B6e92486c5")
+
 
 ##################################################
 def main():
@@ -141,13 +136,10 @@ def get_balance(addresses):
     UGLY UGLY UGLY
     """
 
-    # Set up output variables
-    # Stablecoins
     usdc_balance = 0
     usdt_balance = 0
     dai_balance = 0
 
-    # ETH Wrappers
     eth_balance = 0
     weth_balance = 0
     steth_balance = 0
@@ -159,10 +151,8 @@ def get_balance(addresses):
     seth2_balance = 0
     reth2_balance = 0
 
-    # Process balances for known addresses for DAO
     for address in addresses:
 
-        # Ensure that address is the checksum version
         address = eth.get_checksum(address)
 
         # Get stablecoin balances
@@ -184,7 +174,6 @@ def get_balance(addresses):
         seth2_balance += round(eth.get_token_balance(SETH2, address, LATEST_BLOCK) / 1e18, 2)
         reth2_balance += round(eth.get_token_balance(RETH2, address, LATEST_BLOCK) / 1e18, 2)
 
-    # Build output dict
     output = {
         'usdc': usdc_balance,
         'usdt': usdt_balance,
