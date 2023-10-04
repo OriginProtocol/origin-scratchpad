@@ -1,11 +1,7 @@
 #! Python3
 """
     File name: treasuries.py
-    Author: Jonathan Snow
-    Date created: 10/21/2022
     Python Version: 3.9.x
-
-    Update main() and get_balance() when adding new tokens.
 """
 
 # Imports
@@ -13,11 +9,9 @@ import sys
 import requests
 from modules import data, eth
 
-# Globals
 DEBUG = False
 ETH_PRICE = float(eth.get_eth_price())
-#LATEST_BLOCK = eth.get_latest_block()
-LATEST_BLOCK = 18251964 # September 31, 2023 (11:59:59 PM UTC)
+LATEST_BLOCK = 18251964 # eth.get_latest_block()
 
 USDC = eth.get_contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
 USDT = eth.get_contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
@@ -51,10 +45,8 @@ def main():
             ]
         }
 
-    # Process all treasuries within the DAO
     treasury_balances = get_balances(treasuries)
 
-    # Dump data to list
     output_list = []
     for each in treasury_balances:
 
@@ -78,7 +70,6 @@ def main():
             ]
         )
 
-    # Dump treasury data to CSV
     output_path = "files/output"
     output_name = "treasury_" + str(LATEST_BLOCK) + ".csv"
 
@@ -98,10 +89,8 @@ def get_treasuries():
     output = {}
     url = "https://api.cryptostats.community/api/v1/treasuries/currentTreasuryUSD"
 
-    # Get list of treasuries
     treasuries = get_data(url)["data"]
 
-    # Simplify treasury data
     for treasury in treasuries:
         tid = treasury["id"]
         output[tid] = treasury["metadata"]["treasuries"]
@@ -115,16 +104,12 @@ def get_balances(input):
     Helper script to loop over treasury dict and 
     to retrieve the balances for each DAO.
     """
-
     output = []
-
-    # Iterate over treasury values
     for key, value in input.items():
         print("Processing: " + str(key))
         balances = get_balance(value)
         balances["name"] = key
         output.append(balances)
-
     return output
 
 
@@ -155,15 +140,10 @@ def get_balance(addresses):
 
         address = eth.get_checksum(address)
 
-        # Get stablecoin balances
         usdc_balance += round(eth.get_token_balance(USDC, address, LATEST_BLOCK) / 1e6, 2)
         usdt_balance += round(eth.get_token_balance(USDT, address, LATEST_BLOCK) / 1e6, 2)
         dai_balance += round(eth.get_token_balance(DAI, address, LATEST_BLOCK) / 1e18, 2)
-
-        # Get ETH balance
         eth_balance += round(eth.get_balance(address, LATEST_BLOCK) / 1e18, 2)
-        
-        # Get ETH wrapper balances
         weth_balance += round(eth.get_token_balance(WETH, address, LATEST_BLOCK) / 1e18, 2)
         steth_balance += round(eth.get_token_balance(STETH, address, LATEST_BLOCK) / 1e18, 2)
         wsteth_balance += round(eth.get_token_balance(WSTETH, address, LATEST_BLOCK) / 1e18, 2)
