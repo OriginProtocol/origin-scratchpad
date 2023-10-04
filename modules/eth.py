@@ -21,6 +21,7 @@ from termcolor import colored
 import requests
 import dotenv
 import os
+import sys
 
 dotenv.load_dotenv()
 DEBUG = False
@@ -33,7 +34,7 @@ ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + ALCHEMY_KEY
 
 # Set up Web3 Object
 WEB3 =  Web3(Web3.HTTPProvider(ALCHEMY))
-ns = ENS.fromWeb3(WEB3)
+ns = ENS.from_web3(WEB3)
 
 # Load ERC20 ABI
 ABI = config.load("modules/abi/erc20.json")
@@ -54,7 +55,7 @@ def get_block_data(number):
     # if block does not exist process and return
     if block is None:
         block_data = WEB3.eth.get_block(block_identifier=number, full_transactions=False)
-        block_data_json = WEB3.toJSON(block_data)
+        block_data_json = WEB3.to_json(block_data)
         block_data_string = data.json_to_string(block_data_json)
 
         block_timestamp = block_data["timestamp"]
@@ -82,7 +83,7 @@ def get_transaction(tx):
 ##################################################
 # Function to get a Transaction receipt
 def get_transaction_receipt(tx):
-    return WEB3.eth.getTransactionReceipt(tx)
+    return WEB3.eth.get_transaction_receipt(tx)
 
 ##################################################
 # Function to initialize a Contract object
@@ -92,23 +93,23 @@ def get_contract(address, contract_abi=ABI):
 ##################################################
 # Function to convert from ether to wei
 def ether_to_wei(ether):
-    return WEB3.toWei(ether, 'ether')
+    return WEB3.to_wei(ether, 'ether')
 
 ##################################################
 # Function to convert from gwei to wei
 def gwei_to_wei(gwei):
-    return WEB3.toWei(gwei, 'gwei')
+    return WEB3.to_wei(gwei, 'gwei')
 
 ##################################################
 # Function to convert from gwei to wei
 def gwei_to_ether(gwei):
-    wei = WEB3.toWei(gwei, 'gwei')
-    return WEB3.fromWei(wei, 'ether')
+    wei = WEB3.to_wei(gwei, 'gwei')
+    return WEB3.from_wei(wei, 'ether')
 
 ##################################################
 # Function to convert from wei to ether
 def wei_to_ether(wei):
-    return WEB3.fromWei(wei, 'ether')
+    return WEB3.from_wei(wei, 'ether')
 
 ##################################################
 # Function to convert from bytes to int
@@ -117,8 +118,19 @@ def bytes2int(bytes):
 
 ##################################################
 # Function to get token balance for provided contract
-def get_token_balance(contract_object, address, block = get_latest_block()):
+def get_token_balance(contract_object, address, block=get_latest_block()):
     return contract_object.functions.balanceOf(address).call(block_identifier=block)
+
+##################################################
+# Function to get token balance for provided contract
+def get_total_supply(contract_object, block=get_latest_block()):
+    print(block)
+    return contract_object.functions.totalSupply().call(block_identifier=block)
+
+##################################################
+# Function to get token balance for provided contract
+def get_frax_position(contract_object, address, block=get_latest_block()):
+    return contract_object.functions.lockedLiquidityOf(address).call(block_identifier=block)
 
 ##################################################
 # Function to get ETH balance for provided address
@@ -135,7 +147,7 @@ def get_eth_price():
 ##################################################
 # Function to take an address and return checksum
 def get_checksum(address):
-    return WEB3.toChecksumAddress(address)
+    return WEB3.to_checksum_address(address)
 
 ##################################################
 # Function to get all NFT holders for a contract
@@ -215,6 +227,21 @@ def is_contract_verified(address):
     return True if status == 1 else False
 
 ##################################################
+# Function to get token balance for provided contract
+def get_cvx_proxy_owner(contract_object, block=get_latest_block()):
+    return contract_object.functions.owner().call(block_identifier=block)
+
+##################################################
+def get_source_code(address):
+    """
+    Function to check Etherscan to see if the provided
+    contract is verified and returns an ABI.
+    """
+    url = ETHERSCAN + "?module=contract&action=getsourcecode&address=" + address + "&apikey=" + ETHERSCAN_KEY
+    data = get_data(url).json()
+    return data["result"][0]
+
+##################################################
 # Function to take an address and return checksum
 def get_transaction_count(address, block = get_latest_block()):
     return WEB3.eth.get_transaction_count(address, block)
@@ -284,7 +311,7 @@ def get_transactions(address):
 
 
 ##################################################
-def get_transfer_logs(contract, from_block, to_block, gap=1000000):
+def get_transfer_logs(contract, to_block, gap=1000000):
     """
     Function to get all transfer logs for a provided contract.
     NOTE: This can run slowly depending on when the contract was
@@ -297,6 +324,9 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
     s_time = time()
     output = []
 
+    # Grab the contract deployment block
+    from_block = get_contract_deploy_date(contract.address, True)
+
     # Limit to how many events we can call at once, break calls into smaller chunks
     start_block = from_block
     end_block = to_block if (to_block - from_block) <= gap else (start_block + gap)
@@ -306,7 +336,7 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
         print("Processing: " + str(start_block) + " / " + str(to_block) + "          ", end='\r')
 
         # Grab events from a range of blocks
-        transfer_filter = contract.events.Transfer.createFilter(fromBlock=start_block, toBlock=end_block)
+        transfer_filter = contract.events.Transfer.create_filter(fromBlock=start_block, toBlock=end_block)
         transfer_entries = transfer_filter.get_all_entries()
 
         # Log
@@ -324,6 +354,7 @@ def get_transfer_logs(contract, from_block, to_block, gap=1000000):
         # Adjust end_block to the to_block if adding the gap takes us over the 
         # desired to_block, otherwise, add the gap to the new start_block
         end_block = to_block if (start_block + gap) > to_block else (start_block + gap)
+        sleep(0.3)
 
     e_time = time()
     print(colored("\nRetrieved Events in " + str(round(e_time-s_time,2)) + "s", 'green'))
