@@ -19,7 +19,7 @@ DEBUG = False
 # Globals
 START_BLOCK = 10884563 # OUSD deployment block (reduces block scanning)
 #LATEST_BLOCK = eth.get_latest_block()
-LATEST_BLOCK = 16343950
+LATEST_BLOCK = 18094942
 OUSD = eth.get_contract("0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86")
 
 ##################################################
@@ -31,7 +31,7 @@ def main():
     print("\nStarting OUSD analysis.")
 
     # Fetch all Transfer logs for the OUSD contract since deployment
-    ousd_transfer_logs = eth.get_transfer_logs(OUSD, START_BLOCK, LATEST_BLOCK)
+    ousd_transfer_logs = eth.get_transfer_logs(OUSD, LATEST_BLOCK)
 
     # Process transfer logs into list of dictionary objects
     transfer_logs = process_logs(ousd_transfer_logs)
@@ -152,7 +152,10 @@ def process_user(address):
     if user_details is None:
 
         # Check for ENS name for address
-        ens_name = eth.get_ens_name(address)
+        try:
+            ens_name = eth.get_ens_name(address)
+        except Exception as e:
+            ens_name = ""
 
         # Check if address is a contract
         is_contract = eth.is_contract(address)

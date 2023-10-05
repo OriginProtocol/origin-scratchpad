@@ -7,8 +7,6 @@
     File Details:
         Purpose: A series of functions to pull information about OUSD owners
         and dump the data to CSV.
-    Notes:
-        - Look at Curve tokens in future [0x87650D7bbfC3A9F10587d7778206671719d9910D]
 
 """
 
@@ -22,6 +20,7 @@ DEBUG = False
 # Globals
 START_BLOCK = 10884563 # OUSD deployment block (reduces block scanning)
 LATEST_BLOCK = eth.get_latest_block()
+#LATEST_BLOCK = 16343950
 OUSD = eth.get_contract("0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86")
 USDT = eth.get_contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
 USDC = eth.get_contract("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
@@ -36,7 +35,6 @@ TEST = [
 def main():
     """
     Function to do a bunch of stuff. Not optimized and no tests.
-    Takes ~ 40-minutes to run once DB is populated.
     """
     print("\nStarting OUSD analysis.")
 
@@ -79,9 +77,6 @@ def main():
         user_ens = user_details[1]
 
         # Get current token balance(s) (OUSD, USDT, USDC, DAI, ETH)
-        """
-        FUTURE: If speed is concern, will need to sort out handling this asynchronously
-        """
         ousd_balance = round(eth.get_token_balance(OUSD, user, LATEST_BLOCK) / 1e18, 2)
         usdt_balance = round(eth.get_token_balance(USDT, user, LATEST_BLOCK) / 1e6, 2)
         usdc_balance = round(eth.get_token_balance(USDC, user, LATEST_BLOCK) / 1e6, 2)
