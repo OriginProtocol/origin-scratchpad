@@ -26,14 +26,11 @@ def main():
 
     print("\nStarting OGV reward analysis.")
 
-    # Grab addresses to process
-
     response = SESSION.get(URL, headers={"x-dune-api-key": KEY}).json()
     results = response["result"]["rows"]
 
     users_count = len(results)
 
-    output = []
     i = 1
     for row in results:
         address = row["address_raw"]
