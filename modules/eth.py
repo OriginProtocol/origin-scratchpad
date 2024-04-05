@@ -29,11 +29,8 @@ DEBUG = False
 ETHERSCAN_KEY = os.getenv("ETHERSCAN_API_KEY")
 ETHERSCAN = "https://api.etherscan.io/api"
 
-ALCHEMY_KEY = os.getenv("ALCHEMY_API_KEY")
-ALCHEMY = "https://eth-mainnet.alchemyapi.io/v2/" + ALCHEMY_KEY
-
-# Set up Web3 Object
-WEB3 =  Web3(Web3.HTTPProvider(ALCHEMY))
+RPC = os.getenv("ORIGIN_RPC") or "https://eth-mainnet.alchemyapi.io/v2/" + os.getenv("ALCHEMY_API_KEY")
+WEB3 =  Web3(Web3.HTTPProvider(RPC))
 ns = ENS.from_web3(WEB3)
 
 # Load ERC20 ABI
